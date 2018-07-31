@@ -3,10 +3,15 @@
 export LANG=C
 export PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin
 
+BASEDIR=$(cd "$(dirname "$0")" && pwd)
+CONFDIR=${BASEDIR}
 CMDNAME=$(basename "$0")
 
 COUNT=1
 WAIT=5000 # ms
+
+# shellcheck source=./pinghostsalert.conf
+. ${CONFDIR}/pinghostsalert.conf
 
 print_usage() {
     echo "Usage: ${CMDNAME} [-?] hostname ..."
