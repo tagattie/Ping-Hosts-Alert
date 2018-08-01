@@ -12,6 +12,7 @@ WAIT=5000 # ms
 
 # shellcheck source=./pinghostsalert.conf
 . ${CONFDIR}/pinghostsalert.conf
+export NOTI_SLACK_TOKEN
 
 print_usage() {
     echo "Usage: ${CMDNAME} [-?] hostname ..."
