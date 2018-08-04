@@ -1,1 +1,2 @@
+NOTI_SLACK_CHANNEL="<your slack channel>"
 NOTI_SLACK_TOKEN="<your slack token>"
