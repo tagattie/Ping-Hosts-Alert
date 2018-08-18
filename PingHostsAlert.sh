@@ -15,6 +15,8 @@ WAIT=5000 # ms
 export NOTI_SLACK_CHANNEL
 export NOTI_SLACK_TOKEN
 
+DOWNLIST=${BASEDIR}/down.lst
+
 print_usage() {
     echo "Usage: ${CMDNAME} [-?] hostname ..."
     echo "Options:"
@@ -34,15 +36,38 @@ main() {
         done
     fi
 
+    touch -a ${DOWNLIST}
+    tmplist=$(mktemp ${BASEDIR}/${CMDNAME}.XXXXXX) || exit 1
+    cat ${DOWNLIST} > ${tmplist}
+
+    alives=""
+
     for i in "${@}"; do
         ping -c ${COUNT} -W ${WAIT} "${i}"
         if [ $? -ne 0 ]; then
-            noti --banner=false --slack \
-                 --title "Ping check: ${i} seems DEAD!" \
-                 --message "" \
-                 echo
+            if ! [ $(grep ${i} ${tmplist}) ]; then
+                noti --banner=false --slack \
+                     --title "Ping check: ${i} seems DEAD!" \
+                     --message "" \
+                     echo
+                echo ${i} >> ${tmplist}
+            fi
+        else
+            if [ -z "${alives}" ]; then
+                alives="(${i}"
+            else
+                alives="${alives}|${i}"
+            fi
         fi
     done
+    if [ -n "${alives}" ]; then
+        alives="${alives})"
+    fi
+
+    if [ -n "${alives}" ]; then
+        sort ${tmplist} | uniq | grep -v -E "${alives}" > ${DOWNLIST}
+    fi
+    rm -f ${tmplist}
 
     exit 0
 }
